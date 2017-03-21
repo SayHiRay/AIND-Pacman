@@ -83,21 +83,114 @@ def depthFirstSearch(problem):
   print "Is the start a goal?", problem.isGoalState(problem.getStartState())
   print "Start's successors:", problem.getSuccessors(problem.getStartState())
   """
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  frontier = util.Stack()
+  frontier.push(problem.getStartState())
+  explored = set()
+  nodes_detail = {}
+  nodes_detail[problem.getStartState()] = {"state": problem.getStartState(),
+                                           "action": None,
+                                           "parent": None}
+
+  while True:
+    if frontier.isEmpty():
+      return False
+    current_state = frontier.pop()
+    node_to_expand = nodes_detail[current_state]
+
+    if problem.isGoalState(current_state):
+      path = []
+      node = node_to_expand
+      while node['parent'] is not None:
+        path.append(node['action'])
+        node = node['parent']
+      return list(reversed(path))
+
+    explored.add(current_state)
+    for node in problem.getSuccessors(current_state):
+      # print(node)
+      if node[0] in frontier.list or node[0] in explored:
+        continue
+      frontier.push(node[0])
+      nodes_detail[node[0]] = {"state": node[0],
+                               "action": node[1],
+                               "parent": node_to_expand}
+
 
 def breadthFirstSearch(problem):
   """
   Search the shallowest nodes in the search tree first.
   [2nd Edition: p 73, 3rd Edition: p 82]
   """
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  frontier = util.Queue()
+  frontier.push(problem.getStartState())
+  explored = set()
+  nodes_detail = {}
+  nodes_detail[problem.getStartState()] = {"state": problem.getStartState(),
+                                           "action": None,
+                                           "parent": None}
+
+  while True:
+      if frontier.isEmpty():
+          return False
+      current_state = frontier.pop()
+      node_to_expand = nodes_detail[current_state]
+
+      if problem.isGoalState(current_state):
+          path = []
+          node = node_to_expand
+          while node['parent'] is not None:
+              path.append(node['action'])
+              node = node['parent']
+          return list(reversed(path))
+
+      explored.add(current_state)
+      for node in problem.getSuccessors(current_state):
+          # print(node)
+          if node[0] in frontier.list or node[0] in explored:
+              continue
+          frontier.push(node[0])
+          nodes_detail[node[0]] = {"state": node[0],
+                                   "action": node[1],
+                                   "parent": node_to_expand}
+
       
 def uniformCostSearch(problem):
   "Search the node of least total cost first. "
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  frontier = util.PriorityQueue()
+  frontier.push(problem.getStartState(), 0)
+  explored = set()
+  nodes_detail = {}
+  nodes_detail[problem.getStartState()] = {"state": problem.getStartState(),
+                                           "action": None,
+                                           "cost": 0,
+                                           "parent": None}
+  while True:
+    if frontier.isEmpty():
+      return False
+    current_state = frontier.pop()
+    node_to_expand = nodes_detail[current_state]
+
+    if problem.isGoalState(current_state):
+        path = []
+        node = node_to_expand
+        while node['parent'] is not None:
+            path.append(node['action'])
+            node = node['parent']
+        return list(reversed(path))
+
+    explored.add(node_to_expand['state'])
+    for node in problem.getSuccessors(current_state):
+      # print(node)
+      if node[0] in explored:
+        continue
+      if node[0] in frontier.heap and nodes_detail[node[0]]['cost'] < node_to_expand["cost"] + node[2]:
+        continue
+      nodes_detail[node[0]] = {"state": node[0],
+                               "action": node[1],
+                               "cost": node_to_expand["cost"] + node[2],
+                               "parent": node_to_expand}
+      frontier.push(node[0], node_to_expand["cost"] + node[2])
+
 
 def nullHeuristic(state, problem=None):
   """
