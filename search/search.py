@@ -93,7 +93,7 @@ def depthFirstSearch(problem):
 
   while True:
     if frontier.isEmpty():
-      return False
+      return None
     current_state = frontier.pop()
     node_to_expand = nodes_detail[current_state]
 
@@ -131,7 +131,7 @@ def breadthFirstSearch(problem):
 
   while True:
       if frontier.isEmpty():
-          return False
+          return None
       current_state = frontier.pop()
       node_to_expand = nodes_detail[current_state]
 
@@ -180,10 +180,9 @@ def uniformCostSearch(problem):
 
     explored.add(node_to_expand['state'])
     for node in problem.getSuccessors(current_state):
-      # print(node)
       if node[0] in explored:
         continue
-      if node[0] in frontier.heap and nodes_detail[node[0]]['cost'] < node_to_expand["cost"] + node[2]:
+      if node[0] in nodes_detail and nodes_detail[node[0]]['cost'] <= node_to_expand["cost"] + node[2]:
         continue
       nodes_detail[node[0]] = {"state": node[0],
                                "action": node[1],
@@ -201,8 +200,41 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  frontier = util.PriorityQueue()
+  frontier.push(problem.getStartState(), 0)
+  explored = set()
+  nodes_detail = {}
+  nodes_detail[problem.getStartState()] = {"state": problem.getStartState(),
+                                           "action": None,
+                                           "g": 0,
+                                           "f": 0 + heuristic(problem.getStartState(), problem),
+                                           "parent": None}
+  while True:
+    if frontier.isEmpty():
+      return False
+    current_state = frontier.pop()
+    node_to_expand = nodes_detail[current_state]
+
+    if problem.isGoalState(current_state):
+        path = []
+        node = node_to_expand
+        while node['parent'] is not None:
+            path.append(node['action'])
+            node = node['parent']
+        return list(reversed(path))
+
+    explored.add(node_to_expand['state'])
+    for node in problem.getSuccessors(current_state):
+      if node[0] in explored:
+        continue
+      if node[0] in nodes_detail and nodes_detail[node[0]]['g'] <= node_to_expand['g'] + node[2]:
+        continue
+      nodes_detail[node[0]] = {"state": node[0],
+                               "action": node[1],
+                               "g": node_to_expand["g"] + node[2],
+                               "f": node_to_expand["g"] + node[2] + heuristic(node[0], problem),
+                               "parent": node_to_expand}
+      frontier.push(node[0], nodes_detail[node[0]]["f"])
     
   
 # Abbreviations
